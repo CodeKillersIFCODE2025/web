@@ -8,9 +8,11 @@ type Props = {
   current: Route;
   onChange: (r: Route) => void;
   onToggle: () => void;
+  userName?: string;
+  onLogout?: () => void;
 };
 
-export default function Sidebar({ collapsed, current, onChange, onToggle }: Props) {
+export default function Sidebar({ collapsed, current, onChange, onToggle, userName, onLogout }: Props) {
   const ItemRow = ({ id, label, icon }:{ id: Route; label: string; icon: React.ReactNode }) => (
     <button
       className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm bg-white hover:bg-gray-100 ${current === id ? "bg-gray-200" : ""}`}
@@ -35,6 +37,13 @@ export default function Sidebar({ collapsed, current, onChange, onToggle }: Prop
         <ItemRow id={Route.NewEvent}   label="Criar evento"       icon={<Plus className="h-4 w-4" />} />
         <ItemRow id={Route.NewMed}     label="Criar remédio/proc." icon={<Pill className="h-4 w-4" />} />
       </div>
+
+      {!collapsed && userName && (
+        <div className="mt-auto p-3 text-xs text-gray-600 space-y-2">
+          <div>Olá, <span className="font-medium">{userName}</span></div>
+          {onLogout && <Button variant="outline" className="w-full" onClick={onLogout}>Sair</Button>}
+        </div>
+      )}
     </aside>
   );
 }

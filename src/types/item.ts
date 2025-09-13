@@ -7,5 +7,5 @@ export type Item = {
   date: string;   // yyyy-MM-dd
   time?: string;  // HH:mm
   description?: string;
-  dose?: string;  // p/ med/proced.
+  dose?: string;  // para med/proced.
 };
