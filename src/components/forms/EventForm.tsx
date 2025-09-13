@@ -80,7 +80,7 @@ export default function EventForm({
 
     const payload = {
       description: data.title + ': ' + data.description,
-      isRepeated: repetitionLocked ? false : isRepeated,
+      repeated: repetitionLocked ? false : isRepeated,
       startDate: toStartDateTimestamp(data.date, data.time),
       frequency: repetitionLocked ? 0 : Number(frequency) || 0,
       frequencyUnit,
@@ -179,7 +179,6 @@ export default function EventForm({
           />
         </div>
 
-        {/* Repetição (igual para ambos os modos, já que é o mesmo endpoint de tasks) */}
         <div className="md:col-span-2 grid grid-cols-1 gap-3 md:grid-cols-3 items-end">
           <div className="flex items-center gap-2">
             <input
