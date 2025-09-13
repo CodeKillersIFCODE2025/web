@@ -12,7 +12,7 @@ type Props = {
 };
 
 // 🔧 flag: troque para true quando o backend estiver pronto
-const USE_ENDPOINT = false;
+const USE_ENDPOINT = true;
 
 export default function LoginPage({ go, busy }: Props) {
   const [email, setEmail] = useState("");
