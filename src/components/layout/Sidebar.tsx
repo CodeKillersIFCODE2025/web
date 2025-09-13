@@ -84,7 +84,7 @@ export default function Sidebar({
         />
         <ItemRow
           id={Route.RegisterElderly}
-          label="Cadastrar idoso"
+          label="Idoso(a)"
           icon={<UserPlus className="h-4 w-4" />}
         />
       </div>
