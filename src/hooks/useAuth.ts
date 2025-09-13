@@ -7,15 +7,38 @@ export function useAuth() {
   const signedIn = !!basic && !!user;
 
   useEffect(() => {
+    function sync() {
+      setBasic(getBasic());
+      setUser(getUser());
+    }
     function onStorage(e: StorageEvent) {
       if (e.key === "auth_basic" || e.key === "auth_user") {
-        setBasic(getBasic());
-        setUser(getUser());
+        sync();
       }
     }
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    // 👇 evento customizado para a MESMA aba
+    window.addEventListener("auth_storage_update", sync as EventListener);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("auth_storage_update", sync as EventListener);
+    };
   }, []);
+
+  function logout() {
+    localStorage.removeItem("auth_basic");
+    localStorage.removeItem("auth_user");
+    setBasic(null);
+    clearSession();
+    setUser(null);
+
+    try {
+      window.dispatchEvent(new StorageEvent("storage", { key: "auth_basic", newValue: null }));
+      window.dispatchEvent(new StorageEvent("storage", { key: "auth_user", newValue: null }));
+    } catch {
+      window.dispatchEvent(new Event("auth_storage_update"));
+    }
+  }
 
   async function login(username: string, password: string) {
     const { basic, user } = await apiLogin(username, password);
@@ -29,12 +52,6 @@ export function useAuth() {
     setSession(basic, user);
     setBasic(basic);
     setUser(user);
-  }
-
-  function logout() {
-    clearSession();
-    setBasic(null);
-    setUser(null);
   }
 
   return { basic, user, signedIn, login, register, logout };
