@@ -16,7 +16,7 @@ type FrequencyUnit =
 
 type Mode = "event" | "med";
 
-const ENDPOINT_URL = "http://localhost:8080/responsibles/task";
+const ENDPOINT_URL = "http://localhost:8080/responsibles/tasks";
 // troque para false se quiser mockar
 const USE_ENDPOINT = true;
 
@@ -71,7 +71,7 @@ export default function EventForm({
 
   function toStartDateTimestamp(date: string, time?: string) {
     const dt = `${date}T${(time && time.trim()) ? time : "00:00"}:00`;
-    return new Date(dt).getTime(); // epoch ms (Timestamp)
+    return new Date(dt).getTime();
   }
 
   async function postTask() {
@@ -79,7 +79,7 @@ export default function EventForm({
     if (!basic) throw new Error("Sessão inválida: faça login para salvar.");
 
     const payload = {
-      description: data.description || data.title, // usa título como fallback
+      description: data.title + ': ' + data.description,
       isRepeated: repetitionLocked ? false : isRepeated,
       startDate: toStartDateTimestamp(data.date, data.time),
       frequency: repetitionLocked ? 0 : Number(frequency) || 0,
