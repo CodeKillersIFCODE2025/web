@@ -4,37 +4,38 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import FormError from "@/components/ui/FormError";
 import { Route } from "@/app/routes";
-import logo from "@/assets/logo.png";
+
+// 🔧 troque para true quando o backend estiver pronto
+const USE_ENDPOINT = false;
+const ENDPOINT_URL = "http://localhost:8080/elderly";
 
 type Props = {
   go: (route: Route) => void;
   busy?: boolean;
 };
 
-// 🔧 troque para true quando o backend estiver pronto
-const USE_ENDPOINT = false;
-const ENDPOINT_URL = "http://localhost:8080/responsibles";
-
-export default function RegisterPage({ go, busy }: Props) {
+export default function RegisterElderlyPage({ go, busy }: Props) {
   const [name, setName]       = useState("");
   const [email, setEmail]     = useState("");
   const [password, setPass]   = useState("");
   const [confirm, setConfirm] = useState("");
-  const [phone, setPhone]     = useState("");
-  const [address, setAddress] = useState("");
   const [err, setErr]         = useState<string | undefined>();
   const [submitting, setSubmitting] = useState(false);
+
+  function getBasicFromStorage(): string | null {
+    return localStorage.getItem("auth_basic");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr(undefined);
 
-    if (password !== confirm) {
-      setErr("As senhas não conferem");
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setErr("Preencha todos os campos obrigatórios");
       return;
     }
-    if (!name.trim() || !email.trim() || !password.trim() || !phone.trim() || !address.trim()) {
-      setErr("Preencha todos os campos obrigatórios");
+    if (password !== confirm) {
+      setErr("As senhas não conferem");
       return;
     }
 
@@ -43,17 +44,25 @@ export default function RegisterPage({ go, busy }: Props) {
       const payload = {
         name: name.trim(),
         email: email.trim(),
-        password,                 // em produção, evite enviar em claro
-        phone: phone.trim(),
-        address: address.trim(),
+        password, // em produção, evite enviar em claro
       };
 
       if (USE_ENDPOINT) {
+        const basic = getBasicFromStorage();
+        if (!basic) {
+          throw new Error("Você precisa estar logado para registrar um idoso.");
+        }
+
         const res = await fetch(ENDPOINT_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Basic ${basic}`,
+            "Accept": "application/json",
+          },
           body: JSON.stringify(payload),
         });
+
         if (!res.ok) {
           const text = await res.text().catch(() => "");
           throw new Error(text || `Falha ao cadastrar (HTTP ${res.status})`);
@@ -62,34 +71,24 @@ export default function RegisterPage({ go, busy }: Props) {
       } else {
         // MOCK: simula latência e sucesso
         await new Promise((r) => setTimeout(r, 400));
-        // console.log("MOCK cadastro:", payload);
+        // console.log("MOCK elderly:", payload);
       }
 
-      // sucesso → volta para Login
-      go(Route.Login);
+      // sucesso -> volta para a Agenda
+      go(Route.AgendaWeek);
     } catch (e: any) {
-      setErr(e?.message || "Falha no cadastro");
+      setErr(e?.message || "Falha no cadastro do idoso");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
-        {/* topo com logo e nome */}
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={logo}
-            alt="ZELO"
-            className="h-32 w-32 mb-4 rounded-full object-cover shadow-lg"
-          />
-          <div className="text-3xl font-bold text-gray-800">ZELO</div>
-        </div>
-
-        <h1 className="mb-1 text-2xl font-bold text-center">Criar conta</h1>
-        <p className="mb-4 text-sm text-gray-600 text-center">
-          Informe seus dados para concluir o cadastro.
+    <div className="max-w-2xl">
+      <Card className="w-full">
+        <h1 className="mb-1 text-2xl font-bold">Cadastrar idoso</h1>
+        <p className="mb-4 text-sm text-gray-600">
+          Informe os dados do idoso para concluir o cadastro.
         </p>
 
         <form className="space-y-3" onSubmit={handleSubmit}>
@@ -99,7 +98,7 @@ export default function RegisterPage({ go, busy }: Props) {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Seu nome"
+              placeholder="Nome do idoso"
             />
           </div>
 
@@ -110,7 +109,7 @@ export default function RegisterPage({ go, busy }: Props) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="voce@email.com"
+              placeholder="email@exemplo.com"
             />
           </div>
 
@@ -137,46 +136,25 @@ export default function RegisterPage({ go, busy }: Props) {
             </div>
           </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium">Telefone</label>
-            <Input
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="5511999999999"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium">Endereço</label>
-            <Input
-              required
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Rua, número, complemento"
-            />
-          </div>
-
           <FormError message={err} />
 
-          <Button
-            className="w-full bg-[#0097b2] hover:bg-[#00aecf] text-white flex items-center justify-center"
-            type="submit"
-            disabled={busy || submitting}
-          >
-            {busy || submitting ? "Cadastrando..." : "Criar conta"}
-          </Button>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => go(Route.AgendaWeek)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              className="bg-[#0097b2] hover:bg-[#00aecf] text-white"
+              type="submit"
+              disabled={busy || submitting}
+            >
+              {busy || submitting ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
         </form>
-
-        <div className="mt-4 text-center text-sm">
-          Já tem conta?{" "}
-          <button
-            className="text-blue-600 underline"
-            onClick={() => go(Route.Login)}
-          >
-            Entrar
-          </button>
-        </div>
       </Card>
     </div>
   );

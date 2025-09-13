@@ -7,4 +7,5 @@ export enum Route {
   NewEvent   = "new-event",
   NewMed     = "new-med",
   Edit       = "edit",
+  RegisterElderly = "register-elderly",
 }

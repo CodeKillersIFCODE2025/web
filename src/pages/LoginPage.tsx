@@ -131,7 +131,7 @@ export default function LoginPage({ go, busy }: Props) {
           <FormError message={err} />
 
           <Button
-            className="w-full bg-[#0097b2] hover:bg-[#00aecf] text-white"
+            className="w-full bg-[#0097b2] hover:bg-[#00aecf] text-white flex items-center justify-center"
             type="submit"
             disabled={busy || submitting}
           >

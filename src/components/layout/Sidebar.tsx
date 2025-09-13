@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "@/components/ui/Button";
-import { Calendar as CalendarIcon, Pill, Plus, Menu } from "lucide-react";
+import { Calendar as CalendarIcon, Pill, Plus, Menu, UserPlus } from "lucide-react";
 import { Route } from "@/app/routes";
 // 👇 importe sua logo
 import logo from "@/assets/logo.png";
@@ -81,6 +81,11 @@ export default function Sidebar({
           id={Route.NewMed}
           label="Criar remédio/proc."
           icon={<Pill className="h-4 w-4" />}
+        />
+        <ItemRow
+          id={Route.RegisterElderly}
+          label="Cadastrar idoso"
+          icon={<UserPlus className="h-4 w-4" />}
         />
       </div>
 

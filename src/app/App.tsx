@@ -7,6 +7,7 @@ import { useItems } from "@/hooks/useItems";
 import AgendaWeekPage from "@/pages/AgendaWeekPage";
 import NewEventPage from "@/pages/NewEventPage";
 import NewMedPage from "@/pages/NewMedPage";
+import RegisterElderlyPage from "@/pages/RegisterElderlyPage";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import type { Item } from "@/types/item";
@@ -82,6 +83,7 @@ export default function App() {
           {route === Route.NewEvent && "Criar evento"}
           {route === Route.NewMed && "Criar remédio/procedimento"}
           {route === Route.Edit && "Editar item"}
+          {route === Route.RegisterElderly && "Cadastrar idoso"}
         </h1>
 
         {route === Route.AgendaWeek && (
@@ -97,6 +99,9 @@ export default function App() {
 
         {route === Route.NewEvent && <NewEventPage onSave={(it)=>{ upsert(it); setRoute(Route.AgendaWeek); }} />}
         {route === Route.NewMed   && <NewMedPage   onSave={(it)=>{ upsert(it); setRoute(Route.AgendaWeek); }} />}
+        {route === Route.RegisterElderly && (
+          <RegisterElderlyPage go={setRoute} />
+        )}
 
         {route === Route.Edit && editing && (
           <Card>
