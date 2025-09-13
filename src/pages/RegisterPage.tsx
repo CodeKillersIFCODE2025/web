@@ -11,7 +11,6 @@ type Props = {
   busy?: boolean;
 };
 
-// 🔧 troque para true quando o backend estiver pronto
 const USE_ENDPOINT = true;
 const ENDPOINT_URL = "http://localhost:8080/responsibles";
 
@@ -43,7 +42,7 @@ export default function RegisterPage({ go, busy }: Props) {
       const payload = {
         name: name.trim(),
         email: email.trim(),
-        password,                 // em produção, evite enviar em claro
+        password,
         phone: phone.trim(),
         address: address.trim(),
       };
@@ -58,14 +57,10 @@ export default function RegisterPage({ go, busy }: Props) {
           const text = await res.text().catch(() => "");
           throw new Error(text || `Falha ao cadastrar (HTTP ${res.status})`);
         }
-        // opcional: const data = await res.json();
       } else {
-        // MOCK: simula latência e sucesso
         await new Promise((r) => setTimeout(r, 400));
-        // console.log("MOCK cadastro:", payload);
       }
 
-      // sucesso → volta para Login
       go(Route.Login);
     } catch (e: any) {
       setErr(e?.message || "Falha no cadastro");
@@ -77,7 +72,6 @@ export default function RegisterPage({ go, busy }: Props) {
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
-        {/* topo com logo e nome */}
         <div className="flex flex-col items-center mb-6">
           <img
             src={logo}

@@ -5,7 +5,6 @@ import Button from "@/components/ui/Button";
 import FormError from "@/components/ui/FormError";
 import { Route } from "@/app/routes";
 
-// 🔧 troque para true quando o backend estiver pronto
 const USE_ENDPOINT = true;
 const ENDPOINT_URL = "http://localhost:8080/elderly";
 

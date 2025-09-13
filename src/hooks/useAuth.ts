@@ -17,7 +17,6 @@ export function useAuth() {
       }
     }
     window.addEventListener("storage", onStorage);
-    // 👇 evento customizado para a MESMA aba
     window.addEventListener("auth_storage_update", sync as EventListener);
     return () => {
       window.removeEventListener("storage", onStorage);

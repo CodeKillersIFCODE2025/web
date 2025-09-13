@@ -11,7 +11,6 @@ type Props = {
   busy?: boolean;
 };
 
-// 🔧 flag: troque para true quando o backend estiver pronto
 const USE_ENDPOINT = true;
 
 export default function LoginPage({ go, busy }: Props) {
@@ -24,13 +23,11 @@ export default function LoginPage({ go, busy }: Props) {
     return btoa(`${e}:${p}`);
   }
 
-  // dispara manualmente um "storage" para o useAuth reagir na mesma aba
   function notifyStorage(key: string, newValue: string | null) {
     try {
       const evt = new StorageEvent("storage", { key, newValue });
       window.dispatchEvent(evt);
     } catch {
-      // fallback em navegadores que não permitem instanciar StorageEvent
       window.dispatchEvent(new Event("auth_storage_update"));
     }
   }
@@ -75,10 +72,8 @@ export default function LoginPage({ go, busy }: Props) {
           const text = await res.text().catch(() => "");
           throw new Error(text || `Falha ao entrar (HTTP ${res.status})`);
         }
-        // const data = await res.json();
       }
 
-      // grava sessão local + notifica e navega
       setAuthSession(basic, email.trim());
       go(Route.AgendaWeek);
     } catch (e: any) {
@@ -91,7 +86,6 @@ export default function LoginPage({ go, busy }: Props) {
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
-        {/* topo com logo e nome */}
         <div className="flex flex-col items-center mb-6">
           <img
             src={logo}
