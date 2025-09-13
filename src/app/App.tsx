@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import { Route } from "@/app/routes";
-import { fmt, iso } from "@/lib/date";
+import { fmt } from "@/lib/date";
 import { compareAsc, parseISO } from "date-fns";
 import { useItems } from "@/hooks/useItems";
 import AgendaWeekPage from "@/pages/AgendaWeekPage";
@@ -15,13 +15,30 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
 
+// 🔧 util local: "yyyy-MM-dd" no FUSO LOCAL
+function todayISO(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+// parse "yyyy-MM-dd" como data LOCAL (evita UTC)
+function localDateFromISO(dateOnlyISO: string): Date {
+  const [y, m, d] = dateOnlyISO.split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
 export default function App() {
   const { items, upsert, removeById } = useItems();
   const { signedIn, user, login, register, logout } = useAuth();
 
   const [route, setRoute] = useState<Route>(signedIn ? Route.AgendaWeek : Route.Login);
   const [collapsed, setCollapsed] = useState(false);
-  const [refISO, setRefISO] = useState<string>(iso(new Date()));
+
+  // ✅ INICIALIZA refISO com hoje LOCAL (não UTC)
+  const [refISO, setRefISO] = useState<string>(todayISO());
+
   const [editing, setEditing] = useState<Item | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -33,6 +50,14 @@ export default function App() {
       setRoute(Route.AgendaWeek);
     }
   }, [signedIn]); // eslint-disable-line
+
+  // ✅ Sempre que abrir a Agenda, garanta HOJE (local)
+  React.useEffect(() => {
+    if (route === Route.AgendaWeek) {
+      const t = todayISO();
+      if (refISO !== t) setRefISO(t);
+    }
+  }, [route]); // eslint-disable-line
 
   const sorted = useMemo(
     () => items.slice().sort((a, b) => compareAsc(parseISO(a.date), parseISO(b.date))),
@@ -76,7 +101,8 @@ export default function App() {
 
       <main className="flex-1 flex flex-col gap-4 p-4 md:p-6 overflow-auto">
         <div className="text-xs uppercase tracking-wide text-gray-500">
-          {fmt(new Date(refISO), "EEEE, d 'de' MMMM")}
+          {/* ✅ renderiza data do cabeçalho no FUSO LOCAL */}
+          {fmt(localDateFromISO(refISO), "EEEE, d 'de' MMMM")}
         </div>
         <h1 className="text-2xl font-bold">
           {route === Route.AgendaWeek && "Agenda (semanal)"}
@@ -99,9 +125,7 @@ export default function App() {
 
         {route === Route.NewEvent && <NewEventPage onSave={(it)=>{ upsert(it); setRoute(Route.AgendaWeek); }} />}
         {route === Route.NewMed   && <NewMedPage   onSave={(it)=>{ upsert(it); setRoute(Route.AgendaWeek); }} />}
-        {route === Route.RegisterElderly && (
-          <RegisterElderlyPage go={setRoute} />
-        )}
+        {route === Route.RegisterElderly && <RegisterElderlyPage go={setRoute} />}
 
         {route === Route.Edit && editing && (
           <Card>
